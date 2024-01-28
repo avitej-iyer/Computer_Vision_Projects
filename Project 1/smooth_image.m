@@ -21,7 +21,7 @@ function smoothed_image = smooth_image(input_image, standard_deviation)
     % Then, apply vertical convolution
     smoothed_image = conv2(smoothed_horizontally, gauss_kernel', 'same');
 
-    % visualizing outputs
+    % Visualizing outputs
     %subplot(1, 2, 1), imshow(input_image), title('Original Image');
     %subplot(1, 2, 2), imshow(smoothed_image), title('Smoothed Image');
 end

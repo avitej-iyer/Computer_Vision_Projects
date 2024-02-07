@@ -1,8 +1,9 @@
 [filename,gaussian_sd,size_of_neighbourhood,radius_of_neighbourhood,number_corners] = read_corner_parameters('cornerparams.dat');
 
+
 % IMPORTANT
 % ADD A WAY TO SWITCH BETWEEN IMAGES LATER
-grayscale_image = convert_to_grayscale('psutd.jpg');
+grayscale_image = convert_to_grayscale(filename);
 
 smooth = smooth_image(grayscale_image, gaussian_sd);
 
@@ -16,4 +17,6 @@ corner_values = harris_corner_detection(grad_x,grad_y, size_of_neighbourhood, k)
 corners = extract_best_corners(corner_values, number_corners, radius_of_neighbourhood);
 
 visualize_corners(grayscale_image, corners);
+
+%ascii_output(corners, corner_values, "corners.txt");
 

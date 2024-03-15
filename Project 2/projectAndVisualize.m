@@ -1,3 +1,5 @@
+% Step 1
+
 function returning_2d_points = projectAndVisualize(pts3D, Parameters)
     % Extract the intrinsic matrix (K) and the rotation matrix (R) from Parameters
     K = Parameters.Kmat;

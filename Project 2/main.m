@@ -28,18 +28,7 @@ floor_x2 = [1.718750000000000e+03;9.672500000000002e+02;7.527500000000001e+02;2.
 floor_y1 = [9.417500000000001e+02;7.032500000000000e+02;6.252500000000001e+02;6.147500000000000e+02];
 floor_y2 = [7.032500000000000e+02;7.302500000000000e+02;5.067499999999999e+02;7.812500000000000e+02];
 
-% Preallocate array for triangulated 3D points
-floorPoints3D = zeros(3, length(floor_x1));
-
-% Loop through each point and triangulate
-for i = 1:length(floor_x1)
-    p1 = [floor_x1(i), floor_y1(i)];
-    p2 = [floor_x2(i), floor_y2(i)];
-    
-    % Assuming you have the camera parameters loaded as Parameters_1 and Parameters_2
-    floorPoints3D(:, i) = triangulatePoints(p1', p2', V1_Params, V2_Params);
-end
-
+floorPoints3D = get3DPointsMatrix(floor_x1, floor_x2, floor_y1, floor_y2, V1_Params, V2_Params);
 [floor_plane, floor_normal, floor_point] = fitPlaneToPoints(floorPoints3D);
 
 %[wall_x1, wall_y1, wall_x2, wall_y2] = selectCorrespondingPoints('im1corrected.jpg', 'im2corrected.jpg', 4);
@@ -49,19 +38,11 @@ wall_x2 = [3.522500000000001e+02;1.587500000000001e+02;8.442500000000001e+02;4.3
 wall_y1 = [2.892499999999999e+02;2.727499999999999e+02;4.992499999999999e+02;2.382499999999998e+02];
 wall_y2 = [1.767499999999998e+02;1.512499999999998e+02;3.597499999999999e+02;1.182499999999998e+02];
 
-wallPoints3D = zeros(3, length(wall_x1));
 
-for i = 1:length(wall_x1)
-    p1 = [wall_x1(i), wall_y1(i)];
-    p2 = [wall_x2(i), wall_y2(i)];
-    
-    % Assuming you have the camera parameters yloaded as Parameters_1 and Parameters_2
-    wallPoints3D(:, i) = triangulatePoints(p1', p2', V1_Params, V2_Params);
-end
-
+wallPoints3D = get3DPointsMatrix(wall_x1, wall_x2, wall_y1, wall_y2, V1_Params, V2_Params);
 [wall_plane, wall_normal, wall_point] = fitPlaneToPoints(wallPoints3D);
 
-height_of_door = selectPointAndMeasureDistance('im1corrected.jpg', 'im2corrected.jpg', V1_Params, V2_Params, floor_plane, "door");
+% height_of_door = selectPointAndMeasureDistance('im1corrected.jpg', 'im2corrected.jpg', V1_Params, V2_Params, floor_plane, "door");
 % height of door reference (first calculation) = 2165mm
 % height_of_man = selectPointAndMeasureDistance('im1corrected.jpg', 'im2corrected.jpg', V1_Params, V2_Params, floor_plane, "man");
 % height of man reference (first calculation) = 1640mm
@@ -71,25 +52,24 @@ height_of_door = selectPointAndMeasureDistance('im1corrected.jpg', 'im2corrected
 % [-142;-4945;2351];
 %{
 [camera_x1,camera_y1, camera_x2, camera_y2] = selectCorrespondingPoints('im1corrected.jpg', 'im2corrected.jpg', 1);
-cameraPoint3D = zeros(3, length(camera_x1));
 
-% Loop through each point and triangulate
-for i = 1:length(camera_x1)
-    p1 = [camera_x1(i), camera_y1(i)];
-    p2 = [camera_x2(i), camera_y2(i)];
-    
-    % Assuming you have the camera parameters loaded as Parameters_1 and Parameters_2
-    cameraPoint3D(:, i) = triangulatePoints(p1', p2', V1_Params, V2_Params);
-end
+cameraPoint3D = get3DPointsMatrix(camera_x1, camera_x2, camera_y1, camera_y2, V1_Params, V2_Params);
 %}
 
 % STEP 3 RESULTS
-% FLOOR PLANE = [-0.007607656322775;-0.012493811339910;0.999893008398137;7.506050164140770]
-% WALL PLANE = [0.007141510079416;0.999973914830431;0.001080968310346;5.541614733911812e+03]
-% HEIGHT OF DOOR = 2165mm
-% HEIGHT OF MAN = 1640mm
-% CAMERA'S 3D POSITION (NEAR THE STRIPED WALL) = [-142;-4945;2351]
+% Floor plane = [-0.007607656322775;-0.012493811339910;0.999893008398137;7.506050164140770]
+% Wall plane = [0.007141510079416;0.999973914830431;0.001080968310346;5.541614733911812e+03]
+% Height of door = 2165mm
+% Height of man = 1640mm
+% Camera's 3d position (near striped wall) = [-142;-4945;2351]
 
 
+% THIS DOESN'T WORK
+% F = computeFundamentalMatrix(V1_Params, V2_Params);
+% drawEpipolarLines('im1corrected.jpg', 'im2corrected.jpg', F);
 
+%F = eightPointAlgorithm('im1corrected.jpg', 'im2corrected.jpg');
+%drawEpipolarLines('im1corrected.jpg', 'im2corrected.jpg', F);
+
+SED = computeSED(F, p1_projection, p2_projection);
 

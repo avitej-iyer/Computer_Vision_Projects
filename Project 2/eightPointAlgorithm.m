@@ -1,55 +1,127 @@
-function F = eightPointAlgorithm(im1, im2)
-   % Display the first image and allow the user to select points
-    figure; imshow(im1); title('Select at least 8 points on this image and press Enter when done');
-    [x1, y1] = ginput; % User selects points with the mouse and presses Enter when done
+function F = eightPointAlgorithm(image, image2, savx1, savx2, savy1, savy2)
+    x1 = savx1; y1 = savy1; x2 = savx2; y2 = savy2;
+
+    im = imread(image);
+    im2 = imread(image2);
     
-    % Display the second image and allow the user to select corresponding points
-    figure; imshow(im2); title('Now select the corresponding points on this image and press Enter when done');
-    [x2, y2] = ginput; % User selects corresponding points with the mouse and presses Enter when done
+    figure(1); imagesc(im); axis image; drawnow;
+    figure(2); imagesc(im2); axis image; drawnow;
     
-    % Ensure an equal number of points have been selected in both images
-    if length(x1) ~= length(x2) || isempty(x1)
-        error('The number of points selected in both images must be equal and at least 8.');
+    
+    %figure(1); [x1,y1] = getpts;
+    figure(1); imagesc(im); axis image; hold on
+    for i=1:length(x1)
+       h=plot(x1(i),y1(i),'*'); set(h,'Color','g','LineWidth',2);
+       text(x1(i),y1(i),sprintf('%d',i));
     end
+    hold off
+    drawnow;
     
-    % Normalize points
-    [normalizedPoints1, T1] = normalizePoints([x1, y1]);
-    [normalizedPoints2, T2] = normalizePoints([x2, y2]);
     
-    % Construct the matrix A based on normalized points
+    %figure(2); imagesc(im2); axis image; drawnow;
+    %[x2,y2] = getpts;
+    figure(2); imagesc(im2); axis image; hold on
+    for i=1:length(x2)
+       h=plot(x2(i),y2(i),'*'); set(h,'Color','g','LineWidth',2);
+       text(x2(i),y2(i),sprintf('%d',i));
+    end
+    hold off
+    drawnow;
+    
+    %do Hartley preconditioning
+    %savx1 = x1; savy1 = y1; savx2 = x2; savy2 = y2;
+    mux = mean(x1);
+    muy = mean(y1);
+    stdxy = (std(x1)+std(y1))/2;
+    T1 = [1 0 -mux; 0 1 -muy; 0 0 stdxy]/stdxy;
+    nx1 = (x1-mux)/stdxy;
+    ny1 = (y1-muy)/stdxy;
+    mux = mean(x2);
+    muy = mean(y2);
+    stdxy = (std(x2)+std(y2))/2;
+    T2 = [1 0 -mux; 0 1 -muy; 0 0 stdxy]/stdxy;
+    nx2 = (x2-mux)/stdxy;
+    ny2 = (y2-muy)/stdxy;
+    
     A = [];
-    for i = 1:size(normalizedPoints1, 1)
-        x1 = normalizedPoints1(i, 1); y1 = normalizedPoints1(i, 2);
-        x2 = normalizedPoints2(i, 1); y2 = normalizedPoints2(i, 2);
-        A = [A; x2*x1, x2*y1, x2, y2*x1, y2*y1, y2, x1, y1, 1];
+    for i=1:length(nx1);
+        A(i,:) = [nx1(i)*nx2(i) nx1(i)*ny2(i) nx1(i) ny1(i)*nx2(i) ny1(i)*ny2(i) ny1(i) nx2(i) ny2(i) 1];
     end
+    %get eigenvector associated with smallest eigenvalue of A' * A
+    [u,d] = eigs(A' * A,1,'SM');
+    F = reshape(u,3,3);
     
-    % Solve Af=0 using SVD
-    [~, ~, V] = svd(A);
-    F = reshape(V(:,end), 3, 3)';
+    %make F rank 2
+    oldF = F;
+    [U,D,V] = svd(F);
+    D(3,3) = 0;
+    F = U * D * V';
     
-    % Enforce the rank-2 constraint on F
-    [U, S, V] = svd(F);
-    S(3,3) = 0;
-    F = U * S * V';
-    
-    % Denormalize F
+    %unnormalize F to undo the effects of Hartley preconditioning
     F = T2' * F * T1;
     
-    % Function to normalize points
-    function [normalizedPoints, T] = normalizePoints(points)
-        % Calculate the centroid
-        centroid = mean(points, 1);
-        
-        % Calculate the scale factor to make the average distance from the origin sqrt(2)
-        distances = sqrt(sum((points - centroid).^2, 2));
-        scale = sqrt(2) / mean(distances);
-        
-        % Construct the transformation matrix
-        T = [scale, 0, -scale*centroid(1); 0, scale, -scale*centroid(2); 0, 0, 1];
-        
-        % Apply the transformation
-        normalizedPoints = (T * [points, ones(size(points, 1), 1)]')';
-        normalizedPoints = normalizedPoints(:, 1:2);
+    colors =  'bgrcmykbgrcmykbgrcmykbgrcmykbgrcmykbgrcmykbgrcmyk';
+    %overlay epipolar lines on im2
+    L = F * [x1' ; y1'; ones(size(x1'))];
+    [nr,nc,nb] = size(im2);
+    figure(2); clf; imagesc(im2); axis image;
+    hold on; plot(x2,y2,'*'); hold off
+    for i=1:length(L)
+        a = L(1,i); b = L(2,i); c=L(3,i);
+        if (abs(a) > (abs(b)))
+           ylo=0; yhi=nr; 
+           xlo = (-b * ylo - c) / a;
+           xhi = (-b * yhi - c) / a;
+           hold on
+           h=plot([xlo; xhi],[ylo; yhi]);
+           set(h,'Color',colors(i),'LineWidth',2);
+           hold off
+           drawnow;
+        else
+           xlo=0; xhi=nc; 
+           ylo = (-a * xlo - c) / b;
+           yhi = (-a * xhi - c) / b;
+           hold on
+           h=plot([xlo; xhi],[ylo; yhi],'b');
+           set(h,'Color',colors(i),'LineWidth',2);
+           hold off
+           drawnow;
+        end
     end
-end
+    
+    
+    %overlay epipolar lines on im1
+    L = ([x2' ; y2'; ones(size(x2'))]' * F)' ;
+    [nr,nc,nb] = size(im);
+    figure(1); clf; imagesc(im); axis image;
+    hold on; plot(x1,y1,'*'); hold off
+    for i=1:length(L)
+        a = L(1,i); b = L(2,i); c=L(3,i);
+        if (abs(a) > (abs(b)))
+           ylo=0; yhi=nr; 
+           xlo = (-b * ylo - c) / a;
+           xhi = (-b * yhi - c) / a;
+           hold on
+           h=plot([xlo; xhi],[ylo; yhi],'b');
+           set(h,'Color',colors(i),'LineWidth',2);
+           hold off
+           drawnow;
+        else
+           xlo=0; xhi=nc; 
+           ylo = (-a * xlo - c) / b;
+           yhi = (-a * xhi - c) / b;
+           hold on
+           h=plot([xlo; xhi],[ylo; yhi],'b');
+           set(h,'Color',colors(i),'LineWidth',2);
+           hold off
+           drawnow;
+        end
+    end
+    
+    % this prints out the calculated fundamental matrix
+    for j=1:3
+        for i=1:3
+            fprintf('%10g ',10000*F(j,i));
+        end
+        fprintf('\n');
+    end

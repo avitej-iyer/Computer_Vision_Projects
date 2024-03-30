@@ -118,10 +118,10 @@ function F = eightPointAlgorithm(image, image2, savx1, savx2, savy1, savy2)
         end
     end
     
-    % this prints out the calculated fundamental matrix
-    for j=1:3
-        for i=1:3
-            fprintf('%10g ',10000*F(j,i));
-        end
-        fprintf('\n');
-    end
+%     this prints out the calculated fundamental matrix
+%     for j=1:3
+%         for i=1:3
+%             fprintf('%10g ',10000*F(j,i));
+%         end
+%         fprintf('\n');
+%     end

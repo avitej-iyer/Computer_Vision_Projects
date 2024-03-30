@@ -1,29 +1,29 @@
-function SED = computeSED(F, p1_projection, p2_projection)
-    % Ensure points are in homogeneous coordinates
-    points1_homogeneous = [p1_projection; ones(1, size(p1_projection, 2))];
-    points2_homogeneous = [p2_projection; ones(1, size(p2_projection, 2))];
-
-    % Initialize the sum of squared distances
-    sumSquaredDistances = 0;
+function SED = computeSED(points1, points2, F)
+    % points1 and points2 are Nx2 matrices containing corresponding points in image 1 and image 2 respectively
+    % F is the 3x3 fundamental matrix
     
-    % Iterate over all matched point pairs
-    for i = 1:size(points1_homogeneous, 2)
-        % Get the i-th points in homogeneous coordinates
-        x1 = points1_homogeneous(:, i);
-        x2 = points2_homogeneous(:, i);
+    N = size(points1, 1);  % Number of point correspondences
+    distancesSquared = zeros(N, 1);  % Initialize distances
+    
+    for i = 1:N
+        % Convert points to homogeneous coordinates
+        p1 = [points1(1,i),points1(2,i) 1]';
+        p2 = [points2(1,i),points2(2,i) 1]';
         
         % Compute epipolar lines
-        l2 = F * x1;  % Epipolar line in image 2 for the point in image 1
-        l1 = F' * x2;  % Epipolar line in image 1 for the point in image 2
+        l2 = F * p1;  % Line in image 2 corresponding to point in image 1
+        l1 = F' * p2;  % Line in image 1 corresponding to point in image 2
         
-        % Compute squared distances from points to their corresponding epipolar lines
-        distSquared1 = (l1' * x1)^2 / (l1(1)^2 + l1(2)^2);
-        distSquared2 = (l2' * x2)^2 / (l2(1)^2 + l2(2)^2);
+        % Compute distances of points from their corresponding lines
+        %d1 = (l1' * p1)^2 / (l1(1)^2 + l1(2)^2);
+        %d2 = (l2' * p2)^2 / (l2(1)^2 + l2(2)^2);
+        d1 = ((l1(1)*p1(1) + l1(2) * p1(2) + l1(3))^2) / (l1(1)^2 + l1(2)^2);
+        d2 = ((l2(1)*p2(1) + l2(2) * p2(2) + l2(3))^2) / (l2(1)^2 + l2(2)^2);
         
-        % Accumulate the squared distances
-        sumSquaredDistances = sumSquaredDistances + distSquared1 + distSquared2;
+        % Accumulate squared distances
+        distancesSquared(i) = d1 + d2;
     end
     
-    % Compute the mean of the accumulated squared distances
-    SED = sumSquaredDistances / (2 * size(points1_homogeneous, 2));  % Divided by 2 * number of pairs
+    % Compute mean of the squared distances
+    SED = mean(distancesSquared);
 end

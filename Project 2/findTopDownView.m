@@ -1,6 +1,4 @@
 function findTopDownView(source_image, floor_points_2d_x, floor_points_2d_y)
-%FINDTOPDOWNVIEW Summary of this function goes here
-%   Detailed explanation goes here
 
 source = imread(source_image);
 [nr, nc, nb] = size(source);

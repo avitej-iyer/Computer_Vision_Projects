@@ -1,6 +1,6 @@
 % Step 1
 
-function returning_2d_points = projectAndVisualize(pts3D, Parameters)
+function returning_2d_points = projectAndVisualize(pts3D, Parameters, adjust, image, printer)
 %     Extract the intrinsic matrix (K) and the rotation matrix (R) from Parameters
 %     K = Parameters.Kmat;
 %     R = Parameters.Rmat;
@@ -35,7 +35,11 @@ function returning_2d_points = projectAndVisualize(pts3D, Parameters)
 %     }
     cam_pixel_locations = [];
     r_mat = Parameters.Rmat;
-    k_mat = Parameters.Kmat;
+    if isa(adjust, "string")
+        k_mat = Parameters.Kmat;
+    else
+        k_mat = adjust;
+    end
     p_mat = Parameters.Pmat;
     pos = Parameters.position;
     pos_vec = [pos(1); pos(2); pos(3)];
@@ -57,4 +61,17 @@ function returning_2d_points = projectAndVisualize(pts3D, Parameters)
         cam_pixel_locations = [cam_pixel_locations pixel_loc];
     end
    returning_2d_points = cam_pixel_locations(1:2, :);
+
+   if eq(printer, 1)
+    if isa(image, "string")
+        image = imread(image);
+    end
+    imshow(image);
+    hold on;
+    
+    plot(returning_2d_points(1, :), returning_2d_points(2, :), 'ro', 'MarkerSize', 5, 'LineWidth', 1.5);
+    title('Projected 2D Points on Image');
+    hold off;
+   end
+
 end

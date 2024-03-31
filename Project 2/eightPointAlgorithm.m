@@ -1,7 +1,7 @@
 function F = eightPointAlgorithm(image, image2, savx1, savx2, savy1, savy2, printer)
     x1 = savx1; y1 = savy1; x2 = savx2; y2 = savy2;
 
-    if isa(image, "string")
+    if ischar(image) 
         im = imread(image);
         im2 = imread(image2);
     else

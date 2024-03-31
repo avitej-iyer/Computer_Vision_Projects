@@ -10,19 +10,18 @@ p1_projection = projectAndVisualize(pts3D, V1_Params, "none","im1corrected.jpg",
 load('Parameters_V2.mat', 'Parameters');
 V2_Params = Parameters;
 p2_projection = projectAndVisualize(pts3D, V2_Params, "none",'im2corrected.jpg', 0);
- 
-% Plot points onto images (Step 1)
-%figure; imshow(imread("im1corrected.jpg")); hold on; plot(p1_projection(1, :), p1_projection(2, :), 'ro');
-%figure; imshow(imread("im2corrected.jpg")); hold on; plot(p2_projection(1, :), p2_projection(2, :), 'ro');
 
 % Step 2
 % Triangulation to recover 3D points and error checking 
 recovered_points = triangulatePoints(p1_projection, p2_projection, V1_Params, V2_Params);
 mse = computeMSE(pts3D, recovered_points);
 
+
+% Step 3
+
 %[floor_x1, floor_y1, floor_x2, floor_y2] = selectCorrespondingPoints('im1corrected.jpg', 'im2corrected.jpg', 4);
 
-% floor points selected by trial and error (mostly error)
+% floor points selected by trial and error 
 floor_x1 = [1.036250000000000e+03;7.302500000000001e+02;1.448750000000000e+03;5.667500000000001e+02];
 floor_x2 = [1.718750000000000e+03;9.672500000000002e+02;7.527500000000001e+02;2.922500000000001e+02];
 floor_y1 = [9.417500000000001e+02;7.032500000000000e+02;6.252500000000001e+02;6.147500000000000e+02];
@@ -64,53 +63,30 @@ cameraPoint3D = get3DPointsMatrix(camera_x1, camera_x2, camera_y1, camera_y2, V1
 % Camera's 3d position (near striped wall) = [-142;-4945;2351]
 
 
-% THIS DOESN'T WORK
-% savx1 = [1.034750000000000e+03,1.577750000000000e+03,9.837500000000002e+02,1.450250000000000e+03,1.430750000000000e+03,1.616750000000000e+03,1.271750000000000e+03,1.328750000000000e+03]';
-% savx2 = [1.718750000000000e+03,1.117250000000000e+03,4.977500000000001e+02,7.527500000000001e+02,5.907500000000001e+02,7.647500000000001e+02,3.522500000000001e+02,4.332500000000001e+02]';
-% savy1 = [9.432500000000001e+02,7.197500000000000e+02,6.072500000000000e+02,6.237500000000000e+02,5.907499999999999e+02,6.192500000000000e+02,2.772499999999999e+02,2.367499999999998e+02]';
-% savy2 = [7.032500000000000e+02,5.367500000000000e+02,6.027500000000000e+02,5.067499999999999e+02,4.917499999999999e+02,4.782499999999999e+02,1.617499999999998e+02,1.182499999999998e+02]';
-%fundamental_matrix_calculated = computeFundamentalMatrix(V1_Params, V2_Params);
-%drawEpipolarLines('im1corrected.jpg', 'im2corrected.jpg', fundamental_matrix_calculated, savx1, savx2, savy1, savy2);
+% Step 5
 
-% points to use for 8 point alg
-savx1 = [1.034750000000000e+03,1.577750000000000e+03,9.837500000000002e+02,1.450250000000000e+03,1.430750000000000e+03,1.616750000000000e+03,1.271750000000000e+03,1.328750000000000e+03]';
-savx2 = [1.718750000000000e+03,1.117250000000000e+03,4.977500000000001e+02,7.527500000000001e+02,5.907500000000001e+02,7.647500000000001e+02,3.522500000000001e+02,4.332500000000001e+02]';
-savy1 = [9.432500000000001e+02,7.197500000000000e+02,6.072500000000000e+02,6.237500000000000e+02,5.907499999999999e+02,6.192500000000000e+02,2.772499999999999e+02,2.367499999999998e+02]';
-savy2 = [7.032500000000000e+02,5.367500000000000e+02,6.027500000000000e+02,5.067499999999999e+02,4.917499999999999e+02,4.782499999999999e+02,1.617499999999998e+02,1.182499999999998e+02]';
+% new testing points for 8 point algorithm 
+test_x1 = [1.450250000000000e+03;1.537250000000000e+03;1.556750000000000e+03;7.302500000000001e+02;6.357500000000001e+02;7.407500000000001e+02;1.576250000000000e+03;1.034750000000000e+03];
+test_x2 = [7.512500000000001e+02;7.047500000000001e+02;7.257500000000001e+02;9.687500000000002e+02;9.792500000000002e+02;1.127750000000000e+03;1.115750000000000e+03;1.715750000000000e+03];
+test_y1 = [6.252500000000001e+02;5.997500000000000e+02;4.527500000000000e+02;7.047500000000000e+02;3.612499999999998e+02;5.127499999999999e+02;7.227500000000000e+02;9.417500000000001e+02];
+test_y2 = [5.082499999999999e+02;4.767499999999999e+02;3.402499999999999e+02;7.287500000000000e+02;3.027499999999999e+02;4.752499999999999e+02;5.352500000000000e+02;7.047500000000000e+02];
 
-%[test_x1, test_y1, test_x2, test_y2] = selectCorrespondingPoints('im1corrected.jpg', 'im2corrected.jpg', 8);
+fundamental_matrix_eight_point = eightPointAlgorithm('im1corrected.jpg', 'im2corrected.jpg', test_x1, test_x2, test_y1, test_y2, 0);
 
-% x1=[1.4488e+03;755.7500;1.1503e+03;521.7500;637.2500;391.2500;434.7500;1.4938e+03];
-% y1=[623.7500;673.2500;253.2500;425.7500;469.2500;709.2500;830.7500;451.2500];
-% x2=[751.2500;922.2500;157.2500;88.2500;1.0663e+03;931.2500;1.5253e+03;715.2500];
-% y2=[508.2500;694.2500;119.7500;470.7500;446.7500;899.7500;874.2500;343.2500];
-
-% new testing points (THESE GIVE THE SMALLEST SED)
-% test_x1 = [1.450250000000000e+03;1.537250000000000e+03;1.556750000000000e+03;7.302500000000001e+02;6.357500000000001e+02;7.407500000000001e+02;1.576250000000000e+03;1.034750000000000e+03];
-% test_x2 = [7.512500000000001e+02;7.047500000000001e+02;7.257500000000001e+02;9.687500000000002e+02;9.792500000000002e+02;1.127750000000000e+03;1.115750000000000e+03;1.715750000000000e+03];
-% test_y1 = [6.252500000000001e+02;5.997500000000000e+02;4.527500000000000e+02;7.047500000000000e+02;3.612499999999998e+02;5.127499999999999e+02;7.227500000000000e+02;9.417500000000001e+02];
-% test_y2 = [5.082499999999999e+02;4.767499999999999e+02;3.402499999999999e+02;7.287500000000000e+02;3.027499999999999e+02;4.752499999999999e+02;5.352500000000000e+02;7.047500000000000e+02];
-% 
-% fundamental_matrix_eight_point = eightPointAlgorithm ('im1corrected.jpg', 'im2corrected.jpg', test_x1, test_x2, test_y1, test_y2, 0);
-
-%SED_eight_point = computeSED(p1_projection, p2_projection, fundamental_matrix_eight_point);
+% Step 6
+SED_eight_point = computeSED(p1_projection, p2_projection, fundamental_matrix_eight_point);
 %SED_calculated = computeSED(p1_projection, p2_projection, fundamental_matrix_calculated);
 
 
-% Stuff for Step 6
+% Step 7
 
-% [floor_points_x1,floor_points_y1, floor_points_x2, floor_points_y2] = selectCorrespondingPoints('im1corrected.jpg', 'im2corrected.jpg', 4);
+%[floor_points_x1,floor_points_y1, floor_points_x2, floor_points_y2] = selectCorrespondingPoints('im1corrected.jpg', 'im2corrected.jpg', 4);
 
-% floor_points_y1 = [7.092500000000000e+02,9.417500000000001e+02,7.212500000000000e+02,6.072500000000000e+02];
-% floor_points_y2 = [8.982500000000000e+02,7.032500000000000e+02,5.337500000000000e+02,6.012500000000000e+02];
-% floor_points_3d = get3DPointsMatrix(floor_points_x1, floor_points_x2, floor_points_y1, floor_points_y2, V1_Params, V2_Params);
+floor_points_x1 = [3.927500000000001e+02,1.033250000000000e+03,1.579250000000000e+03,9.882500000000001e+02];
+floor_points_y1 = [7.092500000000000e+02,9.417500000000001e+02,7.212500000000000e+02,6.072500000000000e+02];
+findTopDownView('im1corrected.jpg', floor_points_x1, floor_points_y1);
 
-%STEP 7
-% floor_points_x1 = [3.927500000000001e+02,1.033250000000000e+03,1.579250000000000e+03,9.882500000000001e+02];
-% floor_points_x2 = [9.282500000000002e+02,1.718750000000000e+03,1.118750000000000e+03,4.947500000000002e+02];
-% 
-% findTopDownView('im1corrected.jpg', floor_points_x1, floor_points_y1);
-% 
+
 
 % EXTRA CREDIT
 % figure; imshow('im1corrected.jpg'); title('Select 2 points to form a rectangle');
@@ -141,12 +117,13 @@ cropped_images_y1 = [346;3.570000000000001e+02;1.540000000000000e+02;43.99999999
 cropped_images_x2 = [58;1.160000000000000e+02;2.230000000000001e+02;70.000000000000030;1.270000000000000e+02;1.580000000000001e+02;66;83.000000000000030];
 cropped_images_y2 = [4.285000000000001e+02;4.905000000000001e+02;1.705000000000000e+02;48.499999999999940;1.044999999999999e+02;1.415000000000000e+02;95.499999999999940;4.395000000000001e+02];
 
+% Projection for 
 cropped_F_eight_point = eightPointAlgorithm (cropped_im_1, cropped_im_2, cropped_images_x1, cropped_images_x2, cropped_images_y1, cropped_images_y2, 0);
 
-figure(1);
-cropped_p1_projection = projectAndVisualize(pts3D, V1_Params, new_K1, cropped_im_1, 1);
-figure(2);
-cropped_p2_projection = projectAndVisualize(pts3D, V2_Params, new_K2, cropped_im_2, 1);
+%figure(3);
+cropped_p1_projection = projectAndVisualize(pts3D, V1_Params, new_K1, cropped_im_1, 0);
+%figure(4);
+cropped_p2_projection = projectAndVisualize(pts3D, V2_Params, new_K2, cropped_im_2, 0);
 
 
 

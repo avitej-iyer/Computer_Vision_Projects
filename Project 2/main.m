@@ -17,7 +17,7 @@ figure(11);
 p2_projection = projectAndVisualize(pts3D, V2_Params, "none",'im2corrected.jpg', 1, 2);
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % STEP 2
 
 % Triangulation to recover 3D points and error checking 
@@ -26,7 +26,7 @@ mse = computeMSE(pts3D, recovered_points);
 
 % Computed MSE = 5.301433965722105e-24
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % STEP 3
 
 %[floor_x1, floor_y1, floor_x2, floor_y2] = selectCorrespondingPoints('im1corrected.jpg', 'im2corrected.jpg', 4);
@@ -73,12 +73,12 @@ cameraPoint3D = get3DPointsMatrix(camera_x1, camera_x2, camera_y1, camera_y2, V1
 % Height of man = 1640mm
 % Camera's 3d position (near striped wall) = [-1.096482929309536e+02;-5.027384449037352e+03;2.353431639711320e+03]
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % STEP 4
 
 F_calculated = computeFundamentalMatrix(V1_Params, V2_Params, "none", "none");
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % STEP 5
 
 % points for 8 point algorithm (selected using "selectCorrespondingPoints.m")
@@ -89,7 +89,7 @@ test_y2 = [5.082499999999999e+02;4.767499999999999e+02;3.402499999999999e+02;7.2
 
 F_eight_point = eightPointAlgorithm('im1corrected.jpg', 'im2corrected.jpg', test_x1, test_x2, test_y1, test_y2, 1);
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Step 6
 SED_eight_point = computeSED(p1_projection, p2_projection, F_eight_point);
 SED_calculated = computeSED(p1_projection, p2_projection, F_calculated);
@@ -98,7 +98,7 @@ SED_calculated = computeSED(p1_projection, p2_projection, F_calculated);
 % SED for F from eight point algorithm = 1.535783956391866
 % SED for calculated F from step 4 = 4.391377995464045e-26
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Step 7
 
 %[floor_points_x1,floor_points_y1, floor_points_x2, floor_points_y2] = selectCorrespondingPoints('im1corrected.jpg', 'im2corrected.jpg', 4);
@@ -108,7 +108,7 @@ floor_points_y1 = [7.092500000000000e+02,9.417500000000001e+02,7.212500000000000
 findTopDownView('im1corrected.jpg', floor_points_x1, floor_points_y1);
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % EXTRA CREDIT
 
 

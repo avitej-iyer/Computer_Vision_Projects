@@ -1,6 +1,6 @@
 % Step 1
 
-function returning_2d_points = projectAndVisualize(pts3D, Parameters, adjust, image, printer)
+function returning_2d_points = projectAndVisualize(pts3D, Parameters, adjust, image, printer, image_number)
 
 % adjust = "none" means you use the Kmat from Parameters. If not, you use adjust as Kmat
 % printer = 1 will visualize the points
@@ -42,7 +42,10 @@ function returning_2d_points = projectAndVisualize(pts3D, Parameters, adjust, im
     hold on;
     
     plot(returning_2d_points(1, :), returning_2d_points(2, :), 'ro', 'MarkerSize', 5, 'LineWidth', 1.5);
-    title('Projected 2D Points on Image');
+    if image_number == 1
+        title('Step 1 : Projected 2D Points on Image 1');
+    else
+        title('Step 1 : Projected 2D points on Image 2')
     hold off;
    end
 

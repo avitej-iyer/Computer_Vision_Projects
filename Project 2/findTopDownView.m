@@ -32,7 +32,8 @@ for b = 1:nb
 end
 
 %display result
-imagesc(dest);
+figure(90);
+imagesc(dest); title("Top Down view for Step 7")
 
 end
 

@@ -1,11 +1,19 @@
 function drawEpipolarLines(image1, image2, F, x1, x2, y1, y2)
    colors =  'bgrcmykbgrcmykbgrcmykbgrcmykbgrcmykbgrcmykbgrcmyk';
-   im = imread(image1);
-   im2 = imread(image2);
+    
+   if isstring(image1)
+    im = imread(image1);
+    im2 = imread(image2);
+   else
+    im = image1;
+    im2 = image2;
+   end
+
+   
     %overlay epipolar lines on im2
     L = F * [x1' ; y1'; ones(size(x1'))];
     [nr,nc,nb] = size(im2);
-    figure(2); clf; imagesc(im2); axis image;
+    figure(71); clf; imagesc(im2); axis image; title("Epipolar lines on cropped image from picture 2 (Extra Credit)");
     hold on; plot(x2,y2,'*'); hold off
     for i=1:length(L)
         a = L(1,i); b = L(2,i); c=L(3,i);
@@ -34,7 +42,7 @@ function drawEpipolarLines(image1, image2, F, x1, x2, y1, y2)
     %overlay epipolar lines on im1
     L = ([x2' ; y2'; ones(size(x2'))]' * F)' ;
     [nr,nc,nb] = size(im);
-    figure(1); clf; imagesc(im); axis image;
+    figure(70); clf; imagesc(im); axis image;title("Epipolar lines on cropped image from picture 1 (Extra Credit)");
     hold on; plot(x1,y1,'*'); hold off
     for i=1:length(L)
         a = L(1,i); b = L(2,i); c=L(3,i);

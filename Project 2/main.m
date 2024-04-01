@@ -1,23 +1,33 @@
+% STEP 1
+
 % Load the 3D mocap points
 load('mocapPoints3D.mat', 'pts3D');
 
 % Load camera parameters for the first view and project points
 load('Parameters_V1.mat');
 V1_Params = Parameters;
-p1_projection = projectAndVisualize(pts3D, V1_Params, "none","im1corrected.jpg", 0);
+
+figure(10);
+p1_projection = projectAndVisualize(pts3D, V1_Params, "none","im1corrected.jpg", 1, 1);
 
 % Load camera parameters for the second view and project points
 load('Parameters_V2.mat', 'Parameters');
 V2_Params = Parameters;
-p2_projection = projectAndVisualize(pts3D, V2_Params, "none",'im2corrected.jpg', 0);
+figure(11);
+p2_projection = projectAndVisualize(pts3D, V2_Params, "none",'im2corrected.jpg', 1, 2);
 
-% Step 2
+
+
+% STEP 2
+
 % Triangulation to recover 3D points and error checking 
 recovered_points = triangulatePoints(p1_projection, p2_projection, V1_Params, V2_Params);
 mse = computeMSE(pts3D, recovered_points);
 
+% Computed MSE = 5.301433965722105e-24
 
-% Step 3
+
+% STEP 3
 
 %[floor_x1, floor_y1, floor_x2, floor_y2] = selectCorrespondingPoints('im1corrected.jpg', 'im2corrected.jpg', 4);
 
@@ -46,36 +56,47 @@ wallPoints3D = get3DPointsMatrix(wall_x1, wall_x2, wall_y1, wall_y2, V1_Params, 
 % height_of_man = selectPointAndMeasureDistance('im1corrected.jpg', 'im2corrected.jpg', V1_Params, V2_Params, floor_plane, "man");
 % height of man reference (first calculation) = 1640mm
 
-% figuring out the camera's 3d position 
-% first run gives the position
-% [-142;-4945;2351];
-%{
-[camera_x1,camera_y1, camera_x2, camera_y2] = selectCorrespondingPoints('im1corrected.jpg', 'im2corrected.jpg', 1);
+%[camera_x1,camera_y1, camera_x2, camera_y2] = selectCorrespondingPoints('im1corrected.jpg', 'im2corrected.jpg', 1);
+
+camera_x1 = 1.528250000000000e+03;
+camera_x2 = 7.077500000000001e+02;
+camera_y1 = 2.607499999999999e+02;
+camera_y2 = 1.527499999999998e+02;
 
 cameraPoint3D = get3DPointsMatrix(camera_x1, camera_x2, camera_y1, camera_y2, V1_Params, V2_Params);
-%}
+
 
 % STEP 3 RESULTS
 % Floor plane = [-0.007607656322775;-0.012493811339910;0.999893008398137;7.506050164140770]
 % Wall plane = [0.007141510079416;0.999973914830431;0.001080968310346;5.541614733911812e+03]
 % Height of door = 2165mm
 % Height of man = 1640mm
-% Camera's 3d position (near striped wall) = [-142;-4945;2351]
+% Camera's 3d position (near striped wall) = [-1.096482929309536e+02;-5.027384449037352e+03;2.353431639711320e+03]
 
 
-% Step 5
+% STEP 4
 
-% new testing points for 8 point algorithm 
+F_calculated = computeFundamentalMatrix(V1_Params, V2_Params, "none", "none");
+
+
+% STEP 5
+
+% points for 8 point algorithm (selected using "selectCorrespondingPoints.m")
 test_x1 = [1.450250000000000e+03;1.537250000000000e+03;1.556750000000000e+03;7.302500000000001e+02;6.357500000000001e+02;7.407500000000001e+02;1.576250000000000e+03;1.034750000000000e+03];
 test_x2 = [7.512500000000001e+02;7.047500000000001e+02;7.257500000000001e+02;9.687500000000002e+02;9.792500000000002e+02;1.127750000000000e+03;1.115750000000000e+03;1.715750000000000e+03];
 test_y1 = [6.252500000000001e+02;5.997500000000000e+02;4.527500000000000e+02;7.047500000000000e+02;3.612499999999998e+02;5.127499999999999e+02;7.227500000000000e+02;9.417500000000001e+02];
 test_y2 = [5.082499999999999e+02;4.767499999999999e+02;3.402499999999999e+02;7.287500000000000e+02;3.027499999999999e+02;4.752499999999999e+02;5.352500000000000e+02;7.047500000000000e+02];
 
-fundamental_matrix_eight_point = eightPointAlgorithm('im1corrected.jpg', 'im2corrected.jpg', test_x1, test_x2, test_y1, test_y2, 0);
+F_eight_point = eightPointAlgorithm('im1corrected.jpg', 'im2corrected.jpg', test_x1, test_x2, test_y1, test_y2, 1);
+
 
 % Step 6
-SED_eight_point = computeSED(p1_projection, p2_projection, fundamental_matrix_eight_point);
-%SED_calculated = computeSED(p1_projection, p2_projection, fundamental_matrix_calculated);
+SED_eight_point = computeSED(p1_projection, p2_projection, F_eight_point);
+SED_calculated = computeSED(p1_projection, p2_projection, F_calculated);
+
+% Step 6 Results
+% SED for F from eight point algorithm = 1.535783956391866
+% SED for calculated F from step 4 = 4.391377995464045e-26
 
 
 % Step 7
@@ -89,6 +110,8 @@ findTopDownView('im1corrected.jpg', floor_points_x1, floor_points_y1);
 
 
 % EXTRA CREDIT
+
+
 % figure; imshow('im1corrected.jpg'); title('Select 2 points to form a rectangle');
 % [cropping_points_im1_x, cropping_points_im1_y] = ginput(2);
 
@@ -109,21 +132,14 @@ image_2_crop_y = [3.042499999999999e+02;8.112500000000000e+02];
 % figure(2);
 % imshow(cropped_im_2);
 
-% SELECTING POINTS FOR RUNNING EIGHT POINT ON CROPPED IMAGES
+% SELECTING POINTS FOR PROJECTION ON CROPPED IMAGES
 % [cropped_images_x1, cropped_images_y1, cropped_images_x2, cropped_images_y2] = selectCorrespondingPoints(cropped_im_1, cropped_im_2, 8);
+
+extra_credit_F = computeFundamentalMatrix(V1_Params, V2_Params, new_K1, new_K2);
 
 cropped_images_x1 = [185;35.999999999999970;199;217;76.999999999999970;92.999999999999970;66.999999999999970;18.999999999999970];
 cropped_images_y1 = [346;3.570000000000001e+02;1.540000000000000e+02;43.999999999999940;77;1.100000000000000e+02;66;307];
 cropped_images_x2 = [58;1.160000000000000e+02;2.230000000000001e+02;70.000000000000030;1.270000000000000e+02;1.580000000000001e+02;66;83.000000000000030];
 cropped_images_y2 = [4.285000000000001e+02;4.905000000000001e+02;1.705000000000000e+02;48.499999999999940;1.044999999999999e+02;1.415000000000000e+02;95.499999999999940;4.395000000000001e+02];
 
-% Projection for 
-cropped_F_eight_point = eightPointAlgorithm (cropped_im_1, cropped_im_2, cropped_images_x1, cropped_images_x2, cropped_images_y1, cropped_images_y2, 0);
-
-%figure(3);
-cropped_p1_projection = projectAndVisualize(pts3D, V1_Params, new_K1, cropped_im_1, 0);
-%figure(4);
-cropped_p2_projection = projectAndVisualize(pts3D, V2_Params, new_K2, cropped_im_2, 0);
-
-
-
+drawEpipolarLines(cropped_im_1, cropped_im_2, extra_credit_F, cropped_images_x1, cropped_images_x2, cropped_images_y1, cropped_images_y2);

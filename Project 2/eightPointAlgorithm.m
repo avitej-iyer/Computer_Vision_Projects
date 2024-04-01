@@ -1,4 +1,4 @@
-function F = eightPointAlgorithm(image, image2, savx1, savx2, savy1, savy2, printer)
+function F = eightPointAlgorithm(image, image2, savx1, savx2, savy1, savy2, printer, project_step)
     x1 = savx1; y1 = savy1; x2 = savx2; y2 = savy2;
 
     if ischar(image) 
@@ -10,14 +10,14 @@ function F = eightPointAlgorithm(image, image2, savx1, savx2, savy1, savy2, prin
     end
 
     if eq(printer, 1)
-        figure(1); imagesc(im); axis image; drawnow;
-        figure(2); imagesc(im2); axis image; drawnow;
+        figure(60); imagesc(im); axis image; drawnow;
+        figure(61); imagesc(im2); axis image; drawnow;
         
     
     
 
-        %figure(1); [x1,y1] = getpts;
-        figure(1); imagesc(im); axis image; hold on
+        %figure(60); [x1,y1] = getpts;
+        figure(60); imagesc(im); axis image; hold on
         for i=1:length(x1)
            h=plot(x1(i),y1(i),'*'); set(h,'Color','g','LineWidth',2);
            text(x1(i),y1(i),sprintf('%d',i));
@@ -26,9 +26,9 @@ function F = eightPointAlgorithm(image, image2, savx1, savx2, savy1, savy2, prin
         drawnow;
         
         
-        %figure(2); imagesc(im2); axis image; drawnow;
+        %figure(61); imagesc(im2); axis image; drawnow;
         %[x2,y2] = getpts;
-        figure(2); imagesc(im2); axis image; hold on
+        figure(61); imagesc(im2); axis image; hold on
         for i=1:length(x2)
            h=plot(x2(i),y2(i),'*'); set(h,'Color','g','LineWidth',2);
            text(x2(i),y2(i),sprintf('%d',i));
@@ -76,7 +76,7 @@ function F = eightPointAlgorithm(image, image2, savx1, savx2, savy1, savy2, prin
         %overlay epipolar lines on im2
         L = F * [x1' ; y1'; ones(size(x1'))];
         [nr,nc,nb] = size(im2);
-        figure(2); clf; imagesc(im2); axis image;
+        figure(61); clf; imagesc(im2); axis image; title("8 Point F matrix Projection for Step 5 - Image 2"); 
         hold on; plot(x2,y2,'*'); hold off
         for i=1:length(L)
             a = L(1,i); b = L(2,i); c=L(3,i);
@@ -105,7 +105,7 @@ function F = eightPointAlgorithm(image, image2, savx1, savx2, savy1, savy2, prin
         %overlay epipolar lines on im1
         L = ([x2' ; y2'; ones(size(x2'))]' * F)' ;
         [nr,nc,nb] = size(im);
-        figure(1); clf; imagesc(im); axis image;
+        figure(60); clf; imagesc(im); axis image; title("8 Point F matrix Projection for Step 5 - Image 1"); 
         hold on; plot(x1,y1,'*'); hold off
         for i=1:length(L)
             a = L(1,i); b = L(2,i); c=L(3,i);

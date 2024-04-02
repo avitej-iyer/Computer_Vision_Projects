@@ -21,4 +21,6 @@ thresholdValue = 25;
 g = 50;  % Decay constant
 persistent_frame_differencing_output = persistentFrameDifferencing(grayscale_ants, thresholdValue, g);
 
-%saveOutputFrames(persistent_frame_differencing_output, 'ants_persistent_frame_diff_out');
+quad_panel_ants = createQuadPanelImages(simple_background_sub_output, simple_frame_diff_output, adaptive_bg_diff_output, persistent_frame_differencing_output);
+
+saveOutputFrames(quad_panel_ants, 'ants_output_quad');

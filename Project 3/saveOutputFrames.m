@@ -10,7 +10,7 @@ function saveOutputFrames(outputFrames, destinationFolder)
     % Loop over each frame in the output array
     for i = 1:numFrames
         % Create a filename for the output image
-        fileName = sprintf('frame%04d.jpg', i);
+        fileName = sprintf('%04d.jpg', i);
         
         % Full path for the output image
         fullPath = fullfile(destinationFolder, fileName);

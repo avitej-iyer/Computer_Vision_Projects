@@ -24,3 +24,5 @@ persistent_frame_differencing_output = persistentFrameDifferencing(grayscale_ant
 quad_panel_ants = createQuadPanelImages(simple_background_sub_output, simple_frame_diff_output, adaptive_bg_diff_output, persistent_frame_differencing_output);
 
 saveOutputFrames(quad_panel_ants, 'ants_output_quad');
+
+framesToVideo('ants_output_quad\', 15, 'ants_video');

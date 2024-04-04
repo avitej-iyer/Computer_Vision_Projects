@@ -1,5 +1,8 @@
 function proj3main(dirstring, maxframenum, abs_diff_threshold, alpha_parameter, gamma_parameter)
 
+% sample function call : proj3main('DataSets\walk\', 283, 30, 0.3, 70);
+
+
 % Define the folder containing the video frames
 % change folder path to convert other video to grayscale
 folderPath = dirstring;

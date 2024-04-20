@@ -29,7 +29,7 @@ quad_panel = createQuadPanelImages(new_simple_back_sub_out, new_simple_frame_dif
 
 %saveOutputFrames(new_persistent_frame_diff_out, 'ants_output_quad');
 
-createVideoFromImageArray(quad_panel, 15, 'video_outputs\', 'new_generated_video');
+createVideoFromImageArray(quad_panel, 15, 'video_outputs\', dirstring);
 
 end
 

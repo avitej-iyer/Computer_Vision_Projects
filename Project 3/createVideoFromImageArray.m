@@ -1,8 +1,11 @@
-function createVideoFromImageArray(imageFiles, frameRate, outputDir, outputFileName)
+function createVideoFromImageArray(imageFiles, frameRate, outputDir, dirstring)
     % Check if output directory exists, if not, create it
     if ~exist(outputDir, 'dir')
         mkdir(outputDir);
     end
+
+    % Use the name of the original dataset as the output video file name
+    outputFileName = append(string(extractBetween(dirstring, 10, strlength(dirstring) - 1)), ' Output' );
 
     % Full path for the output video file
     outputFileFullPath = fullfile(outputDir, outputFileName);
